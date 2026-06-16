@@ -1,0 +1,632 @@
+---@type funcs
+local funcs = require(__GUIFIEDGLOBAL__.rootfolder..".dependencies.internal.funcs")
+
+---@class elements
+local elements = {
+    ---@param text string
+    ---@param x number
+    ---@param y number
+    ---@param w? number Optional
+    ---@param h? number Optional
+    ---@param fgclr? Color Optional
+    ---@param bgclr? Color Optional
+    ---@param hoverclr? Color Optional
+    ---@param activebtn? number Optional
+    ---@return element
+    button = function(text, x, y, w, h, bgclr, fgclr, hoverclr, activebtn)
+        funcs.checkArg(text, 1, funcs.types.string)
+        funcs.checkArg(x, 2, funcs.types.int)
+        funcs.checkArg(y, 3, funcs.types.int)
+
+        bgclr = bgclr or {1, 1, 1, 1}
+        fgclr = fgclr or {0, 0, 0, 1}
+        hoverclr = hoverclr or {0.5, 0.5, 0.5, 1}
+        w = w or #text * __GUIFIEDGLOBAL__.fontsize
+        h = h or 2 * __GUIFIEDGLOBAL__.fontsize
+        activebtn = activebtn or 1
+
+        local isPressed = false
+        local hover = false
+
+        return ({
+            _guified = {
+                name = "button",
+                draw = function()
+                    if not(hover) then
+                        love.graphics.setColor(bgclr)
+                    else
+                        love.graphics.setColor(hoverclr)
+                    end
+                    love.graphics.rectangle("fill", x, y, w, h)
+                    love.graphics.setColor(fgclr)
+                    love.graphics.printf(text, x, y + h / 5, w, "center")
+                end,
+                mousemoved = function(argx, argy, dx, dy, istouch)
+                    local mouseX, mouseY = love.mouse.getPosition()
+                    if mouseX > x and mouseX < x + w and mouseY > y and mouseY < y + h then
+                        hover = true
+                    else
+                        hover = false
+                    end
+                end
+            },
+
+            ---@return boolean
+            pressed = function()
+                if love.mouse.isDown(activebtn) then
+                    local mouseX, mouseY = love.mouse.getPosition()
+                    if mouseX > x and mouseX < x + w and mouseY > y and mouseY < y + h then
+                        isPressed = true
+                        return true
+                    end
+                end
+                return false
+            end,
+
+            ---@return boolean
+            released = function()
+                if isPressed and not (love.mouse.isDown(activebtn)) then
+                    isPressed = false
+                    return true
+                end
+                return false
+            end,
+
+            --? updates element data according to the font
+            updateFont = function()
+                w = w or #text * __GUIFIEDGLOBAL__.fontsize
+                h = h or __GUIFIEDGLOBAL__.fontsize * 2
+            end,
+
+            --? changes the position of the element
+            ---@param argx number
+            ---@param argy number
+            setPOS = function(argx, argy)
+                funcs.checkArg(argx, 1, funcs.types.number)
+                funcs.checkArg(argy, 2, funcs.types.number)
+
+                x = argx
+                y = argy
+            end,
+
+            --? returns the position of the element
+            ---@return number The position. x, y
+            getPOS = function()
+                return x, y
+            end,
+
+            ---@return string
+            getText = function()
+                return text
+            end,
+
+            ---@param argtext string
+            setText = function(argtext)
+                funcs.checkArg(argtext, 1, funcs.types.string)
+
+                text = argtext
+            end
+        })
+    end,
+
+    ---@param text string
+    ---@param x? number Optional
+    ---@param y? number Optional
+    ---@return element
+    text = function(text, x, y)
+        funcs.checkArg(text, 1, funcs.types.string)
+
+        x = x or 0
+        y = y or 0
+
+        return ({
+            _guified = {
+                name = "text: " .. text,
+                draw = function()
+                    love.graphics.print(text, x, y)
+                end
+            },
+
+            --? changes the text to display
+            ---@param argtext string
+            setText = function(argtext)
+                funcs.checkArg(argtext, 1, funcs.types.string)
+
+                text = argtext
+            end,
+
+            ---@return string
+            getText = function()
+                return text
+            end,
+
+            --? changes the position of the element
+            ---@param argx number
+            ---@param argy number
+            setPOS = function(argx, argy)
+                funcs.checkArg(argx, 1, funcs.types.number)
+                funcs.checkArg(argy, 2, funcs.types.number)
+
+                x = argx
+                y = argy
+            end,
+
+            --? returns the postion of the element
+            ---@return number The position. x, y
+            getPOS = function()
+                return x, y
+            end
+        })
+    end,
+
+    ---@param text string
+    ---@param x? number Optional
+    ---@param y? number Optional
+    ---@param align? string Optional
+    ---@param maxalign? number Optional
+    ---@return element
+    textf = function(text, x, y, align, maxalign)
+        funcs.checkArg(text, 1, funcs.types.string)
+
+        maxalign = maxalign or love.graphics.getWidth()
+        x = x or 0
+        y = y or 0
+        align = align or "center"
+
+        return ({
+            _guified = {
+                name = "textf: " .. text,
+                draw = function()
+                    love.graphics.printf(text, x, y, maxalign, align)
+                end
+            },
+
+            --? changes the position of the element
+            ---@param argx number
+            ---@param argy number
+            setPOS = function(argx, argy)
+                funcs.checkArg(argx, 1, funcs.types.number)
+                funcs.checkArg(argy, 2, funcs.types.number)
+
+                x = argx
+                y = argy
+            end,
+
+            --? returns the position of the element
+            ---@return number
+            getPOS = function()
+                return x, y
+            end,
+
+            ---@param argtext string
+            setText = function(argtext)
+                funcs.checkArg(argtext, 1, funcs.types.number)
+
+                text = argtext
+            end,
+
+            ---@return string
+            getText = function()
+                return text
+            end,
+
+            ---@param argalign string
+            setAlign = function(argalign)
+                funcs.checkArg(argalign, 1, funcs.types.string)
+
+                align = argalign
+            end,
+
+            ---@param argmaxalign number
+            setMaxAlign = function(argmaxalign)
+                funcs.checkArg(argmaxalign, 1, funcs.types.number)
+
+                maxalign = argmaxalign
+            end,
+
+            ---@return string
+            getAlign = function()
+                return align
+            end,
+
+            ---@return number
+            getMaxAlign = function()
+                return maxalign
+            end
+        })
+    end,
+
+    ---@param x number
+    ---@param y number
+    ---@param image string|image image or the path to the image file
+    ---@return element
+    image = function(x, y, image)
+        funcs.checkArg(x, 1, funcs.types.number)
+        funcs.checkArg(y, 2, funcs.types.number)
+
+        if type(image):lower() == "string" then --? check if the image path was given
+            image = love.graphics.newImage(image)
+        end
+
+        return ({
+            _guified = {
+                name = "image",
+                draw = function()
+                    love.graphics.draw(image, x, y)
+                end
+            },
+
+            --? changes the position of the element
+            ---@param argx number
+            ---@param argy number
+            setPOS = function(argx, argy)
+                funcs.checkArg(argx, 1, funcs.types.number)
+                funcs.checkArg(argy, 2, funcs.types.number)
+
+                x = argx
+                y = argy
+            end,
+
+            --? returns the position of the element
+            ---@return number
+            getPOS = function()
+                return x, y
+            end,
+
+            setImage = function(argimg)
+                if type(argimg):lower() == "string" then
+                    argimg = love.graphics.newImage(argimg)
+                end
+                image = argimg
+            end
+        })
+    end,
+
+    ---@param x number
+    ---@param y number
+    ---@param w number
+    ---@param h number
+    ---@param mode? string optional fill or line
+    ---@param bgclr? Color optional
+    ---@param fgclr? Color optional
+    ---@param placeholderTXT? Color optional
+    ---@param activebtn? number optional. 1 = left, btn 2 = right btn
+    ---@param activebydefault? boolean optional is the element active(selected) by default ?
+    ---@param limit? number optional limit of the enterable text
+    ---@return element
+    textInput = function(x, y, w, h, mode, bgclr, fgclr, hoverclr, placeholderTXT, activebtn, activebydefault, limit)
+        funcs.checkArg(x, 1, funcs.types.number)
+        funcs.checkArg(y, 2, funcs.types.number)
+        funcs.checkArg(w, 3, funcs.types.number)
+        funcs.checkArg(h, 4, funcs.types.number)
+
+        mode = mode or "fill"
+        bgclr = bgclr or {1, 1, 1, 1}
+        fgclr = fgclr or {0, 0, 0, 1}
+        hoverclr = hoverclr or {0.5, 0.5, 0.5, 1}
+        placeholderTXT = placeholderTXT or "Place Holder :3"
+        activebtn = activebtn or 1
+        limit = limit or 16
+
+        if mode ~= "fill" and mode ~= "line" then
+            error("Unknown mode please use:-\nline\nOR\nfill")
+        end
+
+        local txt = nil
+        local wasdownbefore = false
+        local active = activebydefault or false
+        local hover = false
+
+        return({
+            _guified = {
+                name = "textinput",
+                draw = function()
+                    if hover then
+                        love.graphics.setColor(hoverclr)
+                    else
+                        love.graphics.setColor(bgclr)
+                    end
+                    love.graphics.rectangle(mode, x, y, w, h)
+
+                    love.graphics.setColor(fgclr)
+                    if txt ~= nil and active then
+                        love.graphics.printf(txt.."|", x, y+(h/4), w, "center")
+                    elseif txt == nil then
+                        love.graphics.printf(placeholderTXT, x, y+(h/4), w, "center")
+                    elseif txt ~= nil then
+                        love.graphics.printf(txt, x, y+(h/4), w, "center")
+                    end
+                end,
+                update = function()
+                    if love.mouse.isDown(1) then
+                        local mouseX, mouseY = love.mouse.getPosition()
+                        if mouseX > x and mouseX < x+w and mouseY > y and mouseY < y+h then
+                            if not(wasdownbefore) then
+                                wasdownbefore = true
+                                active = true
+                            end
+                        elseif wasdownbefore then
+                            wasdownbefore = false
+                            active = false
+                        end
+                    end
+                end,
+                textinput = function(key)
+                    if active then
+                        if txt == nil then
+                            txt = ""
+                        end
+
+                        if not(#txt >= limit) then
+                            txt = txt..key
+                        end
+                    end
+                end,
+                keypressed = function(key)
+                    if key == "backspace" and txt ~= nil and active then
+                        txt = string.sub(txt, 1, #txt-1)
+                    end
+
+                    if txt ~= nil then
+                        if #txt == 0 then
+                            txt = nil
+                        end
+                    end
+                end,
+                mousemoved = function(argx, argy, dx, dy, istouch)
+                    local mouseX, mouseY = love.mouse.getPosition()
+                    if mouseX > x and mouseX < x+w and mouseY > y and mouseY < y+h then
+                        hover = true
+                    else
+                        hover = false
+                    end
+                end
+            },
+
+            ---@param argx number
+            ---@param argy number
+            setPOS = function(argx, argy)
+                funcs.checkArg(argx, 1, funcs.types.number)
+                funcs.checkArg(argy, 2, funcs.types.number)
+
+                x = argx
+                y = argy
+            end,
+
+            ---@param argbgclr Color
+            ---@param argfgclr Color
+            setClr = function(argbgclr, argfgclr)
+                funcs.checkArg(argfgclr, 1, funcs.types.table)
+                funcs.checkArg(argbgclr, 2, funcs.types.table)
+
+                bgclr = argbgclr
+                fgclr = argfgclr
+            end,
+
+            ---@param arglimit number
+            setLimit = function(arglimit)
+                funcs.checkArg(arglimit, 1, funcs.types.number)
+
+                limit = arglimit
+            end,
+
+            ---@param argmode string
+            setMode = function(argmode)
+                funcs.checkArg(argmode, 1, funcs.types.string)
+                if argmode ~= "fill" and argmode ~= "line" then
+                    error("Unknown mode please use:-\nline\nOR\nfill")
+                end
+
+                mode = argmode
+            end,
+
+            ---@return string
+            getText = function()
+                return(txt or "")
+            end,
+
+            ---@return boolean
+            isActive = function()
+                return active
+            end,
+
+            ---@return Color
+            getClr = function()
+                return bgclr, fgclr
+            end,
+
+            ---@return number
+            getPOS = function()
+                return x, y
+            end,
+
+            ---@param argtext string
+            setText = function(argtext)
+                funcs.checkArg(argtext, 1, funcs.types.string)
+
+                txt = argtext
+            end,
+
+            ---@param argactive boolean
+            setActive = function(argactive)
+                active = argactive
+            end
+        })
+    end,
+
+    ---@param x number
+    ---@param y number
+    ---@param w? number Optional
+    ---@param h? number Optional
+    ---@param mode? string Optional
+    ---@param clr? Color Optional
+    ---@return element
+    box = function(x, y, w, h, mode, clr)
+        funcs.checkArg(x, 2, funcs.types.number)
+        funcs.checkArg(y, 3, funcs.types.number)
+
+        mode = mode or "line"
+        w = w or 40
+        h = h or 40
+        clr = clr or {1, 1, 1, 1}
+
+        return({
+            _guified = {
+                name = "box",
+                draw = function()
+                    love.graphics.setColor(clr)
+                    love.graphics.rectangle(mode, x, y, w, h)
+                end
+            },
+
+            ---@param argx number
+            ---@param argy number
+            setPOS = function(argx, argy)
+                funcs.checkArg(argx, 1, funcs.types.number)
+                funcs.checkArg(argy, 2, funcs.types.number)
+
+                x = argx
+                y = argy
+            end,
+
+            ---@return number
+            getPOS = function()
+                return x, y
+            end,
+
+            ---@param argh number
+            ---@param argw number
+            setWH = function(argw, argh)
+                funcs.checkArg(argw, 1, funcs.types.number)
+                funcs.checkArg(argh, 2, funcs.types.number)
+
+                w = argw
+                h = argh
+            end,
+
+            setColor = function(argclr)
+                funcs.checkArg(argclr, 1, funcs.types.table)
+
+                clr = argclr
+            end
+        })
+    end,
+
+    ---@return element
+    guifiedsplash = function()
+        local largefont = love.graphics.newFont(20)
+        local stdfont = __GUIFIEDGLOBAL__.font
+        local quotes = {"Meow", "ZWT", "The CPU is a rock", "Lua > JS = true. Lua < JS = true. JS logic",
+                        "{something = something}", "pog", "segfault(core dumped)", "404 quote not found", "OwO", ">_O",
+                        "Miku", "Teto", "Hmmmmmmm", __GUIFIEDGLOBAL__.__VER__}
+        local alpha = 1
+        local quote = quotes[love.math.random(1, #quotes)]
+        local done = false
+        return ({
+            _guified = {
+                name = "splash element guified",
+                draw = function()
+                    if done then
+                        return
+                    end
+                    love.graphics.setColor(0, 0, 0, alpha or 0)
+                    love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+                    love.graphics.setColor(1, 1, 1, alpha or 0)
+                    love.graphics.setFont(largefont)
+                    love.graphics.printf("Guified", 0, love.graphics.getHeight() / 2, love.graphics.getWidth(), "center")
+                    love.graphics.setFont(stdfont)
+                    love.graphics.printf(quote, 0, (love.graphics.getHeight() / 2) + 25, love.graphics.getWidth(), "center")
+                end,
+                update = function(dt)
+                    if (alpha or -1) > 0 and not (done) then
+                        alpha = alpha - 0.25 * dt
+                    else
+                        done = true
+                        alpha = nil
+                    end
+                end,
+                keypressed = function()
+                    done = true
+                end,
+                mousepressed = function()
+                    done = true
+                end
+            },
+
+            ---@return boolean is the element done
+            completed = function()
+                return (done)
+            end
+        })
+    end,
+
+    ---@param x number
+    ---@param y number
+    ---@param defaultstate? boolean Optional
+    toggleButton = function(x, y, defaultstate)
+        funcs.checkArg(x, 1, funcs.types.number)
+        funcs.checkArg(y, 2, funcs.types.number)
+
+        local w, h = 50, 20
+        local toggle = defaultstate or false
+        local toggleC = toggle
+
+        return({
+            _guified = {
+                name = "toggle button",
+                draw = function()
+                    local offsetX = 5
+                    if toggle then
+                        offsetX = w-5-10
+                    end
+
+                    love.graphics.setColor(0.5, 0.5, 0.5)
+                    love.graphics.rectangle("fill", x, y, w, h)
+                    love.graphics.setColor(1, 1, 1)
+                    love.graphics.rectangle("line", x, y, w, h)
+                    love.graphics.rectangle("fill", x+offsetX, y+5, 10, 10)
+                end,
+                update = function(dt)
+                    if love.mouse.isDown(1) then
+                        local mouseX, mouseY = love.mouse.getPosition()
+                        if mouseX >= x and mouseX <= x+w and mouseY >= y and mouseY <= y+h then
+                            if toggleC == toggle then
+                                toggle = not(toggle)
+                            end
+                        end
+                    else
+                        toggleC = toggle
+                    end
+                end
+            },
+
+            getState = function()
+                return toggle
+            end,
+
+            ---@param state boolean
+            setState = function(state)
+                funcs.checkArg(state, 1, funcs.types.bool)
+
+                toggle = state
+            end,
+
+            ---@return number
+            getPOS = function()
+                return x, y
+            end,
+
+            ---@param argx number
+            ---@param argy number
+            setPOS = function(argx, argy)
+                funcs.checkArg(argx, 1, funcs.types.number)
+                funcs.checkArg(argy, 2, funcs.types.number)
+
+                x = argx
+                y = argy
+            end
+        })
+    end
+}
+
+return elements
